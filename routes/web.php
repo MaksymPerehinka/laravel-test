@@ -17,4 +17,6 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/user/confirm', 'UserController@confirm')->name('user.confirm');
+
 Route::get('/home', 'HomeController@index')->name('home');

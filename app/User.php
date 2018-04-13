@@ -26,4 +26,23 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public static function boot()
+    {
+        static::deleted(function($user) {
+            $user->confirmationToken()->delete();
+        });
+    }
+
+    public function getConfirmationLink()
+    {
+        return route('user.confirm', [
+            'token' => $this->confirmationToken->hash
+        ]);
+    }
+
+    public function confirmationToken()
+    {
+        return $this->hasOne('App\ConfirmationToken');
+    }
 }
