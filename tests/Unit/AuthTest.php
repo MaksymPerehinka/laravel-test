@@ -82,4 +82,14 @@ class AuthTest extends TestCase
             ->assertSessionHas('flash_message', __('auth.text_successful_registration'))
             ->assertSessionHas('flash_css_class', __('alert-success'));
     }
+
+    /** @test */
+    public function users_registration_timestamp_is_logging()
+    {
+        $user = registerUser($this);
+
+        $this->assertDatabaseHas('user_registration_logs', [
+            'user_id' => $user->id
+        ]);
+    }
 }

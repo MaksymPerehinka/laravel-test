@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\ConfirmationToken;
+use App\UserRegistrationLog;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
@@ -52,5 +53,14 @@ class UserTest extends TestCase
         $token = md5(str_random(6));
         $user->confirmationToken()->create(['hash' => $token]);
         return array($user, $token);
+    }
+
+    /** @test */
+    public function it_can_have_a_registration_log_record()
+    {
+        $user = create('App\User');
+        UserRegistrationLog::create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf('App\UserRegistrationLog', $user->registrationLogRecord);
     }
 }

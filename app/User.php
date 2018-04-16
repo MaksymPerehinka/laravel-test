@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->hasOne('App\ConfirmationToken');
     }
 
+    public function registrationLogRecord()
+    {
+        return $this->hasOne('App\UserRegistrationLog');
+    }
+
     public function confirm()
     {
         $this->confirmed = true;
