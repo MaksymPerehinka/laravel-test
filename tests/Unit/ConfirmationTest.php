@@ -21,6 +21,7 @@ class ConfirmationTest extends TestCase
     /** @test */
     public function confirmation_token_deletes_after_user_confirmation()
     {
+        $user = create('App\User');
         $token = md5(str_random(6));
         $user->confirmationToken()->create(['hash' => $token]);
 

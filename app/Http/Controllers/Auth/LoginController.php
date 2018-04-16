@@ -87,4 +87,9 @@ class LoginController extends Controller
             $credentials, $request->filled('remember')
         );
     }
+
+    protected function findUser()
+    {
+        return User::where('email', request()->email)->first();
+    }
 }
