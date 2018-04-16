@@ -74,7 +74,7 @@ class RegisterController extends Controller
         $hash = md5("$user->id|$user->name|$user->email");
 
         $user->confirmationToken()->create(['hash' => $hash]);
-        $user->registrationLogRecord()->create();
+        $user->registrationLogRecord()->create(); // FIXME: maybe move to model events?
 
         return $user;
     }
