@@ -20,3 +20,9 @@ Auth::routes();
 Route::get('/user/confirm', 'UserController@confirm')->name('user.confirm');
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/user/confirm', 'UserController@confirm')->name('user.confirm');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/user/{user}/get-confirmation-token', 'UserController@requestConfirmationToken')->name('user.confirm.request_token');
+});

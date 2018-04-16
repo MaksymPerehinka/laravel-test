@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'confirmed'
     ];
 
     /**
@@ -44,5 +44,13 @@ class User extends Authenticatable
     public function confirmationToken()
     {
         return $this->hasOne('App\ConfirmationToken');
+    }
+
+    public function confirm()
+    {
+        $this->confirmed = true;
+        $this->save();
+
+        $this->confirmationToken()->delete();
     }
 }

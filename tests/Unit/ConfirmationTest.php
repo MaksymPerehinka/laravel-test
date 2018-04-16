@@ -13,7 +13,7 @@ class ConfirmationTest extends TestCase
     /** @test */
     public function confirmation_token_creates_after_user_registration()
     {
-        $user = $this->registerUser();
+        $user = registerUser($this);
 
         $this->assertNotNull($user->confirmationToken);
     }
@@ -21,7 +21,6 @@ class ConfirmationTest extends TestCase
     /** @test */
     public function confirmation_token_deletes_after_user_confirmation()
     {
-        $user = factory('App\User')->create();
         $token = md5(str_random(6));
         $user->confirmationToken()->create(['hash' => $token]);
 
@@ -30,17 +29,16 @@ class ConfirmationTest extends TestCase
         $this->assertNull($user->confirmationToken);
     }
 
-    /**
-     * @return mixed
-     */
-    private function registerUser()
+    /** @test */
+    public function unauthorized_user_can_not_request_a_confirmation_link()
     {
-        $user = factory('App\User')->make()->toArray();
-        $user['password_confirmation'] = $user['password'] = str_random(8);
+        $user = create('App\User', ['confirmed' => true]);
 
-        $this->post('/register', $user);
+        $this->get(route('user.confirm.request_token', $user))
+            ->assertStatus(403);
 
-        $user = User::first();
-        return $user;
+        $this->signIn();
+        $this->get(route('user.confirm.request_token', auth()->user()))
+            ->assertRedirect(route('home'));
     }
 }

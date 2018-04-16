@@ -1,7 +1,9 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: User
- * Date: 4/16/2018
- * Time: 3:32 AM
- */
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <div class="row justify-content-center">
+            <p>{!! $message !!}</p>
+        </div>
+    </div>
+@endsection

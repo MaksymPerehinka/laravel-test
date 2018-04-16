@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
@@ -38,13 +39,46 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    /**
-     * Attempt to log the user into the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return bool
-     */
-    protected function attemptLogin(Request $request)
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        // If the class is using the ThrottlesLogins trait, we can automatically throttle
+        // the login attempts for this application. We'll key this by the username and
+        // the IP address of the client making these requests into this application.
+        if ($this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        // If the login attempt was unsuccessful we will increment the number of attempts
+        // to login and redirect the user back to the login form. Of course, when this
+        // user surpasses their maximum number of attempts they will get locked out.
+        $this->incrementLoginAttempts($request);
+
+        // FIXME: improve somehow to remove additional db query
+        $user = $this->findUser();
+
+        if( $user && ! $user->confirmed) {
+            $flash_message = __('auth.error_confirmation', [
+                'uri' => route('user.confirm.request_token', $user)
+            ]);
+
+            $request->session()->flash('flash_message', $flash_message);
+            $request->session()->flash('flash_css_class', 'alert-danger');
+
+            return redirect(route('login'));
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    public function attemptLogin(Request $request)
     {
         $credentials = $this->credentials($request);
         $credentials['confirmed'] = true;

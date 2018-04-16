@@ -13,9 +13,7 @@ class UserTest extends TestCase
     /** @test */
     public function it_deletes_confirmation_token_on_deleting()
     {
-        $user = factory('App\User')->create();
-        $token = md5(str_random(6));
-        $user->confirmationToken()->create(['hash' => $token]);
+        list($user, $token) = $this->createUserWithConfirmationToken();
 
         $user->delete();
 
@@ -26,20 +24,33 @@ class UserTest extends TestCase
     /** @test */
     public function it_has_confirmation_token_when_not_confirmed()
     {
-        $user = factory('App\User')->create();
-        $token = md5(str_random(6));
-        $user->confirmationToken()->create(['hash' => $token]);
+        list($user, $token) = $this->createUserWithConfirmationToken();
 
         $this->assertInstanceOf('App\ConfirmationToken', $user->confirmationToken);
     }
 
     /** @test */
-    public function unauthorized_user_can_not_confirm_it()
+    public function unauthorized_user_can_not_confirm_an_account()
     {
-        // given we have an authenticated user
-        // he is redirected
+        list($user, $token) = $this->createUserWithConfirmationToken();
 
-        // given we have a user with wrong token
-        // he is given error message
+        $this->get(route('user.confirm', ['token' => 'adfasfasf']))
+            ->assertSee(__('user.confirm.error_wrong_token', ['uri' => route('home')]))
+            ->assertStatus(422);
+
+        $this->signIn();
+        $this->get(route('user.confirm'))
+            ->assertStatus(403);
+    }
+
+    /**
+     * @return array
+     */
+    public function createUserWithConfirmationToken(): array
+    {
+        $user = create('App\User');
+        $token = md5(str_random(6));
+        $user->confirmationToken()->create(['hash' => $token]);
+        return array($user, $token);
     }
 }
